@@ -1,0 +1,123 @@
+.voice-chat-interface {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.voice-chat-interface > div {
+    position: relative;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.voice-chat-interface button {
+    width: 60px;
+    height: 60px;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    transform: scale(1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.voice-chat-interface button.listening {
+    background-color: rgba(231, 76, 60, 0.9);
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(231, 76, 60, 0.4);
+}
+
+.voice-chat-interface button.listening:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 16px rgba(231, 76, 60, 0.5);
+}
+
+.voice-chat-interface button.notlistening {
+    background-color: rgba(46, 204, 113, 0.9);
+    box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+}
+
+.voice-chat-interface button.notlistening:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(46, 204, 113, 0.4);
+}
+
+.voice-chat-interface > div > div {
+    position: absolute;
+    top: 80px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.voice-chat-interface > div > div.listening-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #e74c3c;
+    animation: textFlicker 1.5s infinite, textFade 2s infinite;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.voice-chat-interface > div > div.loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #f1c40f;
+    animation: textFlicker 1.5s infinite, textFade 2s infinite;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.voice-chat-interface > div > div.listening-indicator > div {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #e74c3c;
+    animation: pulse 1s infinite;
+}
+
+.voice-chat-interface > div > div.loading-indicator > div {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #f1c40f;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+@keyframes textFade {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes textFlicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}

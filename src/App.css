@@ -1,0 +1,36 @@
+.user-icon-container {
+  cursor: pointer;
+   pointer-events: auto; /* Ensure the user icon is clickable */
+    display: flex;
+    align-items: center;
+  margin-bottom: 5px;
+
+}
+
+.user-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; /* Adjust the width as needed */
+  height: 30px; /* Adjust the height as needed */
+}
+
+.options-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1001;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+   align-items: flex-end;
+  padding: 10px;
+
+}
+
+.options-item {
+  pointer-events: auto; /* Ensure options items are clickable */
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}

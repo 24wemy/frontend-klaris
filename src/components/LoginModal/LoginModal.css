@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    --shadow-elegant: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.login-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(37, 99, 235, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: modalBlur 0.4s ease;
+}
+
+.login-modal-content {
+    font-family: 'Poppins', sans-serif;
+    width: 420px;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--shadow-elegant);
+    position: relative;
+    overflow: hidden;
+    transform: perspective(1000px) rotateX(-10deg);
+    opacity: 0;
+    animation: slideIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.login-modal-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--primary-gradient);
+    transform: rotate(-45deg);
+    z-index: -1;
+    opacity: 0.1;
+}
+
+.close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 24px;
+}
+
+.close-button:hover {
+    color: #1d4ed8;
+    transform: rotate(180deg);
+}
+
+.login-modal-content h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #1e3a8a;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+}
+
+.login-modal-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--primary-gradient);
+    border-radius: 2px;
+}
+
+.login-modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.login-modal-content input {
+    padding: 15px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #1f2937;
+    font-weight: 500;
+    transition: all 0.3s ease;
+     flex: 1; /* Take remaining space */
+}
+
+.login-modal-content input:focus {
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.login-modal-content button {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-modal-content button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.login-modal-content button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: all 0.5s ease;
+}
+
+.login-modal-content button:hover::before {
+    left: 100%;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: perspective(1000px) rotateX(-10deg) translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: perspective(1000px) rotateX(0) translateY(0);
+    }
+}
+
+@keyframes modalBlur {
+    from {
+        backdrop-filter: blur(0);
+    }
+    to {
+        backdrop-filter: blur(10px);
+    }
+}
+
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #6b7280;
+    transition: color 0.3s ease;
+}
+
+.password-toggle-icon:hover {
+    color: #3b82f6;
+}
