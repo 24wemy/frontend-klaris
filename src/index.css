@@ -20,9 +20,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --background-image-1: url('public/images/bg10.jpg');
-  --background-image-2: url('public/images/bg9.jpg');
-  --background-image-3: url('public/images/bg8.jpg');
+  --background-image-1: url('/src/images/bg10.jpg');
+  --background-image-2: url('/src/images/bg8.jpg');
+  --background-image-3: url('/src/images/bg9.jpg');
   --current-background: var(--background-image-1);
   background-image: var(--current-background);
   transition: background-image 1s ease-in-out;
