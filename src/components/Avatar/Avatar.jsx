@@ -129,7 +129,7 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         }
     }, [addToConversation, sendQueryToBackend]);
 
-    // Initialize speech recognition
+   // Initialize speech recognition
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -155,15 +155,24 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
            setError('Speech recognition not supported in this browser.');
         }
 
-        return () => recognitionRef.current?.stop();
+        return () => {
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+                recognitionRef.current.onresult = null; // Remove event listener
+                recognitionRef.current.onerror = null; // Remove event listener
+            }
+        };
     }, [handleSpeechResult, setError]);
 
     // Toggle listening state
     const toggleListening = async () => {
         if (isListening) {
+            // Stop recording and recognition
             mediaRecorderRef.current?.state === 'recording' && mediaRecorderRef.current.stop();
             recognitionRef.current?.stop();
+            setIsListening(false); // Ensure state is updated immediately
         } else {
+            // Start recording and recognition
             setError('');
             chunksRef.current = [];
 
@@ -182,15 +191,18 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
 
                 mediaRecorderRef.current.start();
                 recognitionRef.current?.start();
+                setIsListening(true); // Update state after successful setup
             } catch (err) {
                 console.error('Microphone Access Error:', err);
                 setError('Failed to access microphone. Please check permissions.');
                 setIsListening(false);
+                // Attempt to reset MediaRecorder after error
+                if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                    mediaRecorderRef.current.stop();
+                }
                 return;
             }
         }
-
-        setIsListening(!isListening);
     };
 
     // Setup animations and mixer
