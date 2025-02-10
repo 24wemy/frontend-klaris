@@ -9,7 +9,7 @@ const Chatbot = () => {
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const chatContainerRef = useRef(null);
-    const backendUrl = 'https://klaris.my.id/backend';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://klaris.my.id/backend';
 
     const toggleChat = () => {
         setIsOpen(!isOpen);
@@ -32,7 +32,7 @@ const Chatbot = () => {
         setIsTyping(true);
 
         try {
-            const response = await axios.post(`${backendUrl}/api/test_query`, {
+            const response = await axios.post(`${backendUrl}/api/query`, {
                 query: inputText
             });
 
