@@ -39,14 +39,7 @@ function App() {
   };
 
   return (
-    <div style={{ 
-      width: '100vw', 
-      height: '100vh', 
-      position: 'relative', 
-      display: 'flex',
-      overflow: 'hidden',
-      flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
-    }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', display: 'flex', overflow: 'hidden' }}>
       <Routes>
         <Route path="/" element={
           <>
@@ -65,18 +58,18 @@ function App() {
                   left: 0,
                   zIndex: showAvatar ? 1 : -1,
                   pointerEvents: showAvatar ? 'auto' : 'none',
-                  width: '100%',
-                  height: window.innerWidth <= 768 ? 'calc(100vh - 60px)' : '100vh',
-                  overflow: 'hidden',
-                  touchAction: 'none'
+                  touchAction: 'none',
+                  overflow: 'hidden'
                 }}
                 camera={{
                   position: [0, 1.5, 5],
                   fov: 45
                 }}
                 onContextMenu={(e) => e.preventDefault()}
-                onWheel={(e) => e.preventDefault()}
-                onTouchMove={(e) => e.preventDefault()}
+                onWheel={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
                 onClick={handleAvatarClick}
               >
                 <ambientLight intensity={0.6} />
@@ -89,12 +82,7 @@ function App() {
                   shadow-mapSize-width={1024}
                   shadow-mapSize-height={1024}
                 />
-                <OrbitControls 
-                  enableZoom={false} 
-                  enablePan={false} 
-                  enableRotate={false}
-                  enableDamping={false}
-                />
+                <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
                 <Avatar />
               </Canvas>
             )}
@@ -102,15 +90,7 @@ function App() {
         } />
         <Route path="/admin" element={<PrivateRoute><PageAdmin /></PrivateRoute>} />
       </Routes>
-      <Chatbot 
-        avatarEndpoint="/api/chatbot" 
-        style={{
-          position: 'fixed',
-          bottom: window.innerWidth <= 768 ? '10px' : '20px',
-          right: window.innerWidth <= 768 ? '10px' : '20px',
-          maxWidth: window.innerWidth <= 768 ? '90%' : '400px'
-        }}
-      />
+        <Chatbot avatarEndpoint="/api/chatbot" />
     </div>
   );
 }
