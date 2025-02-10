@@ -37,8 +37,8 @@ const GuidelinesModal = ({ isOpen, onClose }) => {
           <ul>
             <li><strong>Voice Input:</strong> Click the microphone button to start speaking. I will process your request.</li>
             <li><strong>Audio Output:</strong> I will provide answers and optionally with voice.</li>
-            <li><strong>Ask questions:</strong> ask question about Universitas Klabat (UNKLAB) or about me.</li>
-            <li><strong>Bug Report:</strong> If you find any bugs or issues, please contact the developer using the "Contact Developer" button.</li>
+            <li><strong>Ask questions:</strong> Ask questions about Universitas Klabat (UNKLAB) or about me.</li>
+            <li><strong>Chat Feature:</strong> Type your questions if you prefer not to use voice.</li>
           </ul>
            <p>Thank you for using this system!</p>
         </div>
