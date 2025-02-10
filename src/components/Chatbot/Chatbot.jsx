@@ -9,7 +9,16 @@ const Chatbot = () => {
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const chatContainerRef = useRef(null);
+    const messagesEndRef = useRef(null);
     const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://klaris.my.id/backend';
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isTyping]);
 
     const toggleChat = () => {
         setIsOpen(!isOpen);
@@ -59,12 +68,6 @@ const Chatbot = () => {
         }
     };
 
-    useEffect(() => {
-        if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-        }
-    }, [messages]);
-
     // Add click event listener to close chat when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -112,7 +115,7 @@ const Chatbot = () => {
                     </div>
                 </div>
 
-                <div className="chatbot-messages" ref={chatContainerRef}>
+                <div className="chatbot-messages">
                     {messages.map((message, index) => (
                         <div key={index} className={`message ${message.sender}`}>
                             {message.text}
@@ -125,6 +128,7 @@ const Chatbot = () => {
                             <div className="typing-dot"></div>
                         </div>
                     )}
+                    <div ref={messagesEndRef} />
                 </div>
 
                 <div className="chatbot-input">
