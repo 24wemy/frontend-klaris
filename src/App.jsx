@@ -60,13 +60,15 @@ function App() {
             {showAvatar && (
               <Canvas
                 style={{
-                  position: 'absolute',
+                  position: 'fixed',
                   top: 0,
                   left: 0,
                   zIndex: showAvatar ? 1 : -1,
                   pointerEvents: showAvatar ? 'auto' : 'none',
                   width: '100%',
-                  height: window.innerWidth <= 768 ? 'calc(100vh - 60px)' : '100vh'
+                  height: window.innerWidth <= 768 ? 'calc(100vh - 60px)' : '100vh',
+                  overflow: 'hidden',
+                  touchAction: 'none'
                 }}
                 camera={{
                   position: [0, 1.5, 5],
@@ -74,6 +76,7 @@ function App() {
                 }}
                 onContextMenu={(e) => e.preventDefault()}
                 onWheel={(e) => e.preventDefault()}
+                onTouchMove={(e) => e.preventDefault()}
                 onClick={handleAvatarClick}
               >
                 <ambientLight intensity={0.6} />
@@ -86,7 +89,12 @@ function App() {
                   shadow-mapSize-width={1024}
                   shadow-mapSize-height={1024}
                 />
-                <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+                <OrbitControls 
+                  enableZoom={false} 
+                  enablePan={false} 
+                  enableRotate={false}
+                  enableDamping={false}
+                />
                 <Avatar />
               </Canvas>
             )}
