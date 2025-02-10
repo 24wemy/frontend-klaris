@@ -1,0 +1,258 @@
+/* ===== CHATBOT CONTAINER ===== */
+.chatbot-container {
+    position: fixed;
+    top: 80px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+    z-index: 1004;
+}
+
+/* ===== CHATBOT BUTTON (TOGGLE) ===== */
+.chatbot-toggle {
+    color: #3b82f6;
+    cursor: pointer;
+    background: rgba(17, 24, 39, 0.9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    padding: 8px;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1005;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.chatbot-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* ===== CHATBOT WINDOW ===== */
+.chatbot-window {
+    position: fixed;
+    top: 80px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    width: 380px;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-55px); /* Moves the window to the left */
+}
+
+.chatbot-container.open .chatbot-window {
+    display: flex;
+}
+
+/* ===== CHATBOT HEADER ===== */
+.chatbot-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e3a8a 100%);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chatbot-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chatbot-header-right {
+    display: flex;
+    gap: 8px;
+}
+
+.chatbot-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chatbot-title span:first-child {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.chatbot-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #10B981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+/* Header Buttons */
+.chatbot-clear,
+.chatbot-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.chatbot-clear:hover,
+.chatbot-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* ===== MESSAGES AREA ===== */
+.chatbot-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: 16px;
+    max-width: 85%;
+    word-wrap: break-word;
+    line-height: 1.5;
+    position: relative;
+    transition: transform 0.2s ease;
+    color: #000000; /* Warna font hitam untuk semua pesan */
+}
+
+.message.user {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 58, 138, 0.1) 100%);
+    align-self: flex-end;
+    border: 1px solid rgba(30, 58, 138, 0.15);
+    color: #000000; /* Warna font hitam untuk pesan user */
+}
+
+.message.bot {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    align-self: flex-start;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    width: fit-content;
+    margin: 8px 0;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #1e3a8a;
+    border-radius: 50%;
+    animation: typingAnimation 1.4s infinite;
+}
+
+/* ===== INPUT AREA ===== */
+.chatbot-input {
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(30, 58, 138, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chatbot-input input {
+    flex-grow: 1;
+    padding: 12px 18px;
+    border: 1px solid rgba(30, 58, 138, 0.2);
+    border-radius: 16px;
+    font-size: 14px;
+    background: #ffffff; /* Ensure background is white */
+    color: #000000; /* Ensure text color is black */
+    transition: all 0.3s ease;
+}
+
+.chatbot-input input:focus {
+    outline: none;
+    border-color: rgba(30, 58, 138, 0.4);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.chatbot-input button {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e3a8a 100%);
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 14px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* Use an icon, e.g., from Font Awesome or similar */
+    font-size: 20px; /* Adjust as needed */
+    line-height: 1; /* Add this line */
+}
+
+.chatbot-input button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes typingAnimation {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+}
+
+/* Scrollbar Styling */
+.chatbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+    background: rgba(30, 58, 138, 0.3);
+    border-radius: 3px;
+}
