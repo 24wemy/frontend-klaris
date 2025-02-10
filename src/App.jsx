@@ -67,7 +67,7 @@ function App() {
                 }}
                 onContextMenu={(e) => e.preventDefault()}
                 onWheel={(e) => {
-                  e.preventDefault();
+                  // Remove preventDefault to avoid passive event listener warning
                   e.stopPropagation();
                 }}
                 onClick={handleAvatarClick}
