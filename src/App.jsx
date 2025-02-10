@@ -39,7 +39,14 @@ function App() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', display: 'flex' }}>
+    <div style={{ 
+      width: '100vw', 
+      height: '100vh', 
+      position: 'relative', 
+      display: 'flex',
+      overflow: 'hidden',
+      flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
+    }}>
       <Routes>
         <Route path="/" element={
           <>
@@ -57,7 +64,9 @@ function App() {
                   top: 0,
                   left: 0,
                   zIndex: showAvatar ? 1 : -1,
-                  pointerEvents: showAvatar ? 'auto' : 'none'
+                  pointerEvents: showAvatar ? 'auto' : 'none',
+                  width: '100%',
+                  height: window.innerWidth <= 768 ? 'calc(100vh - 60px)' : '100vh'
                 }}
                 camera={{
                   position: [0, 1.5, 5],
@@ -85,7 +94,15 @@ function App() {
         } />
         <Route path="/admin" element={<PrivateRoute><PageAdmin /></PrivateRoute>} />
       </Routes>
-        <Chatbot avatarEndpoint="/api/chatbot" />
+      <Chatbot 
+        avatarEndpoint="/api/chatbot" 
+        style={{
+          position: 'fixed',
+          bottom: window.innerWidth <= 768 ? '10px' : '20px',
+          right: window.innerWidth <= 768 ? '10px' : '20px',
+          maxWidth: window.innerWidth <= 768 ? '90%' : '400px'
+        }}
+      />
     </div>
   );
 }
