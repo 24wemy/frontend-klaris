@@ -65,13 +65,30 @@ const Chatbot = () => {
         }
     }, [messages]);
 
+    // Add click event listener to close chat when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isOpen && 
+                chatContainerRef.current && 
+                !chatContainerRef.current.contains(event.target) &&
+                !event.target.closest('.chatbot-toggle')) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [isOpen]);
+
     return (
         <div className={`chatbot-container ${isOpen ? 'open' : ''}`}>
             <button className="chatbot-toggle" onClick={toggleChat}>
                 <FaComments size={24} color="white" />
             </button>
 
-            <div className="chatbot-window">
+            <div className="chatbot-window" ref={chatContainerRef}>
                 <div className="chatbot-header">
                     <div className="chatbot-header-left">
                         <div className="chatbot-icon">
