@@ -28,7 +28,10 @@ export function Avatar() {
     const [blink, setBlink] = useState(false);
     const [facialExpression, setFacialExpression] = useState("bigSmile");
     const [smileIntensity, setSmileIntensity] = useState(1);
-    const [answerText, setAnswerText] = useState(''); // State tetap ada tapi tidak di gunakan
+    const [answerText, setAnswerText] = useState('');
+    const [isMobile] = useState(() => {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    });
 
     // Get avatar state from custom hook
     const {
@@ -93,23 +96,30 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         setLoading(true);
         setAudioUrl('');
         setError('');
-        setAnswerText('');// State tetap ada tapi tidak di gunakan
+        setAnswerText('');
         try {
             const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://klaris.my.id/backend';
             const response = await axios.post(`${backendUrl}/api/query`, {
                 query,
-                audio: audioBlob
+                audio: audioBlob,
+                isMobile: isMobile // Send device info to backend
             }, {
                 headers: { 'Content-Type': 'application/json' }
             });
 
             const answer = response.data.answer || 'No answer available.';
             addToConversation('assistant', answer);
-            setAnswerText(answer); // State tetap ada tapi tidak di gunakan
-
+            setAnswerText(answer);
 
             if (response.data.audio_file) {
-                processAudioFile(`${backendUrl}/api/audio/${response.data.audio_file}`);
+                const audioUrl = `${backendUrl}/api/audio/${response.data.audio_file}`;
+                processAudioFile(audioUrl);
+                
+                // For mobile, ensure audio plays
+                if (isMobile) {
+                    const audio = new Audio(audioUrl);
+                    audio.play().catch(console.error);
+                }
             }
         } catch (err) {
             console.error('Backend Error:', err);
@@ -117,7 +127,7 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         } finally {
             setLoading(false);
         }
-    }, [addToConversation, processAudioFile, setAudioUrl, setError]);
+    }, [addToConversation, processAudioFile, setAudioUrl, setError, isMobile]);
 
     // Speech recognition handler
     const handleSpeechResult = useCallback((event) => {
@@ -158,8 +168,8 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         return () => {
             if (recognitionRef.current) {
                 recognitionRef.current.stop();
-                recognitionRef.current.onresult = null; // Remove event listener
-                recognitionRef.current.onerror = null; // Remove event listener
+                recognitionRef.current.onresult = null;
+                recognitionRef.current.onerror = null;
             }
         };
     }, [handleSpeechResult, setError]);
@@ -170,15 +180,27 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
             // Stop recording and recognition
             mediaRecorderRef.current?.state === 'recording' && mediaRecorderRef.current.stop();
             recognitionRef.current?.stop();
-            setIsListening(false); // Ensure state is updated immediately
+            setIsListening(false);
         } else {
             // Start recording and recognition
             setError('');
             chunksRef.current = [];
 
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: true,
+                    video: false // Explicitly disable video
+                });
+                
+                // Use lower quality audio for mobile
+                const options = isMobile ? {
+                    mimeType: 'audio/webm;codecs=opus',
+                    bitsPerSecond: 16000
+                } : {
+                    mimeType: 'audio/webm'
+                };
+
+                mediaRecorderRef.current = new MediaRecorder(stream, options);
 
                 mediaRecorderRef.current.ondataavailable = (event) => {
                     event.data.size > 0 && chunksRef.current.push(event.data);
@@ -187,20 +209,21 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
                 mediaRecorderRef.current.onstop = () => {
                     const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
                     sendQueryToBackend('', audioBlob);
+                    
+                    // Clean up stream tracks
+                    stream.getTracks().forEach(track => track.stop());
                 };
 
                 mediaRecorderRef.current.start();
                 recognitionRef.current?.start();
-                setIsListening(true); // Update state after successful setup
+                setIsListening(true);
             } catch (err) {
                 console.error('Microphone Access Error:', err);
                 setError('Failed to access microphone. Please check permissions.');
                 setIsListening(false);
-                // Attempt to reset MediaRecorder after error
-                if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                if (mediaRecorderRef.current?.state === 'recording') {
                     mediaRecorderRef.current.stop();
                 }
-                return;
             }
         }
     };
@@ -221,9 +244,24 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
     useEffect(() => {
         if (!groupRef.current) return;
 
-        // Main directional light (key light) - Focused front light
-        const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.6); // Slightly reduced intensity
-        mainLight.position.set(0, 2, 3); // Slightly closer and more centered
+        // Simplified lighting for mobile
+        if (isMobile) {
+            const mainLight = new THREE.DirectionalLight(0xffffff, 2);
+            mainLight.position.set(0, 2, 3);
+            groupRef.current.add(mainLight);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 1);
+            groupRef.current.add(ambientLight);
+
+            return () => {
+                groupRef.current.remove(mainLight);
+                groupRef.current.remove(ambientLight);
+            };
+        }
+
+        // Full lighting setup for desktop
+        const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.6);
+        mainLight.position.set(0, 2, 3);
         mainLight.castShadow = true;
         mainLight.shadow.mapSize.width = 2048;
         mainLight.shadow.mapSize.height = 2048;
@@ -232,22 +270,18 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         mainLight.shadow.bias = -0.00001;
         groupRef.current.add(mainLight);
 
-        // Fill light (softer blue tint) - Reduced intensity
         const fillLight = new THREE.DirectionalLight(0xb6ceff, 0.3);
-        fillLight.position.set(-2, 1.5, -1.5); // Adjusted position
+        fillLight.position.set(-2, 1.5, -1.5);
         fillLight.castShadow = true;
         groupRef.current.add(fillLight);
 
-        // Ambient light (subtle and soft) - Slightly reduced
         const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
         groupRef.current.add(ambientLight);
 
-        // Rim light (dramatic back lighting) - Adjusted position
         const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
         rimLight.position.set(0, 2.5, -4);
         groupRef.current.add(rimLight);
 
-        // Eye lights (for catch lights in eyes) - Adjusted positions and intensity
         const eyeLight1 = new THREE.SpotLight(0xffffff, 0.6);
         eyeLight1.position.set(0.4, 2.1, 2.8);
         eyeLight1.angle = Math.PI / 6;
@@ -264,37 +298,31 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         eyeLight2.distance = 8;
         groupRef.current.add(eyeLight2);
 
-         // Bounce light (ground reflection) - Reduced intensity
         const bounceLight = new THREE.DirectionalLight(0xfff5e6, 0.15);
         bounceLight.position.set(0, -2.5, 1.5);
         groupRef.current.add(bounceLight);
 
-        // Hair highlight - Adjusted position and intensity
         const hairLight = new THREE.SpotLight(0xfff5e6, 0.25);
         hairLight.position.set(1.5, 4, -1.5);
         hairLight.angle = Math.PI / 4;
         hairLight.penumbra = 0.4;
         groupRef.current.add(hairLight);
 
-        // Focused face light - Increased intensity and narrowed cone
         const faceLight = new THREE.SpotLight(0xffffff, 1.3);
-        faceLight.position.set(0, 2.3, 2.5); // More focused position
-        faceLight.angle = Math.PI / 4; // Narrower angle
+        faceLight.position.set(0, 2.3, 2.5);
+        faceLight.angle = Math.PI / 4;
         faceLight.penumbra = 0.2;
         faceLight.decay = 2;
         faceLight.distance = 4;
         groupRef.current.add(faceLight);
 
-        // Additional soft light from the side
         const sideLight = new THREE.DirectionalLight(0xffffff, 0.2);
         sideLight.position.set(3, 2, 0);
         groupRef.current.add(sideLight);
 
-        // Subtle top light
         const topLight = new THREE.DirectionalLight(0xffffff, 0.15);
         topLight.position.set(0, 4, 0);
         groupRef.current.add(topLight);
-
 
         return () => {
             if (groupRef.current) {
@@ -311,7 +339,7 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
                 groupRef.current.remove(topLight);
             }
         };
-    }, []);
+    }, [isMobile]);
 
     // Handle audio playback
     useEffect(() => {
@@ -326,7 +354,6 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
 
         const handleEnd = () => {
             setIsPlaying(false);
-            // Reset visemes with a moderate value
             if (nodes.Wolf3D_Head && nodes.Wolf3D_Teeth) {
                 Object.values(VISEME_MAP).forEach(viseme => {
                     [nodes.Wolf3D_Head, nodes.Wolf3D_Teeth].forEach(node => {
@@ -342,7 +369,7 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         const handleError = (error) => {
             console.error("Audio Playback Error:", error);
             setIsPlaying(false);
-           setError("Error playing audio.");
+            setError("Error playing audio.");
             audioPlayOnceRef.current = false;
         };
 
@@ -350,7 +377,17 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         audio.addEventListener("ended", handleEnd);
         audio.addEventListener("error", handleError);
 
-        if (!audioPlayOnceRef.current) {
+        // For mobile, add user interaction requirement
+        if (isMobile) {
+            const playAudio = () => {
+                if (!audioPlayOnceRef.current) {
+                    audio.play().catch(handleError);
+                    audioPlayOnceRef.current = true;
+                }
+                document.removeEventListener('touchstart', playAudio);
+            };
+            document.addEventListener('touchstart', playAudio);
+        } else if (!audioPlayOnceRef.current) {
             audio.play().catch(handleError);
             audioPlayOnceRef.current = true;
         }
@@ -359,10 +396,13 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
             audio.removeEventListener("play", handlePlay);
             audio.removeEventListener("ended", handleEnd);
             audio.removeEventListener("error", handleError);
+            if (isMobile) {
+                document.removeEventListener('touchstart', () => {});
+            }
             audio.pause();
             audio.currentTime = 0;
         };
-    }, [audioUrl, nodes, setIsPlaying, setError]);
+    }, [audioUrl, nodes, setIsPlaying, setError, isMobile]);
 
     // Automatic blinking
     useEffect(() => {
@@ -374,8 +414,8 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
                 setTimeout(() => {
                     setBlink(false);
                     triggerBlink();
-                }, 200); // Keep blink duration at 200ms for natural look
-            }, 5000 + Math.random() * 3000); // Randomize blink interval
+                }, 200);
+            }, 5000 + Math.random() * 3000);
         };
 
         triggerBlink();
@@ -410,7 +450,6 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
         );
 
         if (nodes.Wolf3D_Head && nodes.Wolf3D_Teeth) {
-            // Reset all visemes to a small base value
             Object.values(VISEME_MAP).forEach(viseme => {
                 [nodes.Wolf3D_Head, nodes.Wolf3D_Teeth].forEach(node => {
                     if (node.morphTargetDictionary[viseme] !== undefined) {
@@ -419,10 +458,9 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
                 });
             });
 
-            // Apply current viseme with moderate intensity
             if (currentViseme && VISEME_MAP[currentViseme.viseme]) {
                 const viseme = VISEME_MAP[currentViseme.viseme];
-                const weight = Math.min(0.5, currentViseme.weight || 0.4); // Cap maximum weight at 0.5
+                const weight = Math.min(0.5, currentViseme.weight || 0.4);
 
                 [nodes.Wolf3D_Head, nodes.Wolf3D_Teeth].forEach(node => {
                     if (node.morphTargetDictionary[viseme] !== undefined) {
@@ -507,13 +545,17 @@ const tempLipSyncData = Array.from({ length: 200 }, (_, i) => {
             </group>
 
             {/* Voice chat interface */}
-           <Html position={[0, -2.5, 0]} style={{ pointerEvents: 'auto' }}>
-              {/* <ConversationDisplay answerText={answerText}/>  Commented out the ConversationDisplay */}
+           <Html position={[0, isMobile ? -1.5 : -2.5, 0]} style={{ 
+               pointerEvents: 'auto',
+               transform: isMobile ? 'scale(1.5)' : 'none' 
+           }}>
               <VoiceChatInterface
                   isListening={isListening}
                   loading={loading}
                   isPlaying={isPlaying}
                   toggleListening={toggleListening}
+                  isMobile={isMobile}
+                  answerText={answerText}
               />
            </Html>
         </Suspense>
