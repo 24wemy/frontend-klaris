@@ -7,6 +7,7 @@ import './App.css';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import PageAdmin from './components/PageAdmin/pageAdmin';
 import Chatbot from './components/Chatbot/Chatbot'; // Import Chatbot component
+import HumanDetector from './components/ObjectDetection/HumanDetector'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -90,7 +91,8 @@ function App() {
         } />
         <Route path="/admin" element={<PrivateRoute><PageAdmin /></PrivateRoute>} />
       </Routes>
-        <Chatbot avatarEndpoint="/api/chatbot" />
+      <HumanDetector />  {/* Tambahkan HumanDetector di sini */}
+      <Chatbot avatarEndpoint="/api/chatbot" />
     </div>
   );
 }
